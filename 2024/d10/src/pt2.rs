@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 struct Grid{
     data: HashMap<(i32, i32), u8>
@@ -7,9 +7,9 @@ struct Grid{
 impl Grid {
     fn score(&self){
         let mut total = 0;
-        for (point,h) in self.data.clone(){
-            if h == 0{
-                total += self.pathfind(point);
+        for (point,h) in &self.data{
+            if *h == 0{
+                total += self.pathfind(*point);
             }
         }
         println!("{total}");
