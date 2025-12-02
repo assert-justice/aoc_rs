@@ -42,14 +42,35 @@ fn is_correct(xs: &Vec<u32>, deps: &HashMap<u32, Vec<u32>>) ->bool{
     true
 }
 
+/*
+procedure permutations(k : integer, A : array of any):
+    if k = 1 then
+        output(A)
+    else
+        // permutations with last element fixed
+        permutations(k - 1, A)
+        // permutations with last element swapped out
+        for i := 0; i < k-1; i += 1 do
+            if k is even then
+                swap(A[i], A[k-1])
+            else
+                swap(A[0], A[k-1])
+            end if
+            permutations(k - 1, A)
+        end for
+    end if
+ */
+fn permutations(k: usize, xs: Vec<u32>) -> 
+
 #[allow(dead_code)]
 pub fn solve(txt: &str){
     let (deps, vec) = parse(txt);
     let mut res = 0;
     for xs in vec{
         if !is_correct(&xs, &deps){
-            let idx = xs.len() / 2;
-            res += xs[idx];
+            for p in 
+            // let idx = xs.len() / 2;
+            // res += xs[idx];
         }
     }
     println!("pt 2: {res}");
