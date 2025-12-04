@@ -9,19 +9,22 @@ mod pt2;
 fn main() {
     let txt = include_str!("../text.txt");
     let now = Instant::now();
-    pt1::solve(&txt);
-    // pt2::solve(&txt);
+    println!("pt 1: {}", pt1::solve(&txt));
+    println!("pt 2: {}", pt2::solve(&txt));
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);
 }
 '''
 
 src = '''
+fn parse(txt: &str) -> usize{
+    txt.len()
+}
+
 #[allow(dead_code)]
-pub fn solve(txt: &str){
-    for line in txt.lines(){
-        println!("{line}");
-    }
+pub fn solve(txt: &str) -> String{
+    let data = parse(txt);
+    format!("{}", data)
 }
 '''
 
