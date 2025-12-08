@@ -129,16 +129,14 @@ pub fn solve(txt: &str) -> String{
     let mut circuits = Vec::new();
     for idx in 0..10 {
         let (_, a, b) = distances[idx];
-        // println!("{:?} {:?}", a, b);
         circuits = add_circuit(a, b, circuits);
         let mut res: Vec<usize> = circuits.iter().map(|c|c.len()).collect();
         res.sort();
         res.reverse();
         println!("{idx}: {:?}", res);
     }
-    // for c in &res {
-    //     println!("{}", c);
-    // }
-    // format!("{}", res[0] * res[1] * res[2])
-    "".to_string()
+    let mut res: Vec<usize> = circuits.iter().map(|c|c.len()).collect();
+    res.sort();
+    res.reverse();
+    format!("{}", res[0] * res[1] * res[2])
 }
