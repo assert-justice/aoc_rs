@@ -8,8 +8,8 @@ struct Indicator{
 
 #[allow(dead_code)]
 impl Indicator {
-    fn new() -> Self{
-        Self { data: 0, len: 0 }
+    fn new(len: usize) -> Self{
+        Self { data: 0, len}
     }
     fn push(&mut self, val: bool){
         if !val{
@@ -42,69 +42,27 @@ impl Indicator {
         mask == self.data
     }
     fn parse(txt: &str) -> Self{
-        let mut me = Self::new();
+        let mut me = Self::new(0);
         for c in txt.chars() {
+            debug_assert!(c == '#' || c == '.');
             me.push(c == '#');
         }
         me
-    }
-    fn test() -> bool{
-        // let txt = ".###.#";
-        // let i = Indicator::parse(txt);
-        // println!("{}", i.data);
-        // println!("{}", i.len);
-        // println!("{}", i.is_lit());
-        // let i = Indicator::parse("###");
-        // println!("{}", i.data);
-        // println!("{}", i.len);
-        // println!("{}", i.is_lit());
-        // let mut i = Indicator::parse("...");
-        // i.set(1, true);
-        // println!("data: {}", i.data);
-        // println!("len: {}", i.len);
-        // println!("should be true: {}", i.get(1));
-        // // let mut i = Indicator::parse("###");
-        // i.set(1, false);
-        // println!("data: {}", i.data);
-        // println!("len: {}", i.len);
-        // println!("should be false: {}", i.get(1));
-        // i.toggle(1);
-        // println!("data: {}", i.data);
-        // println!("len: {}", i.len);
-        // println!("should be true: {}", i.get(1));
-        // i.toggle(1);
-        // println!("data: {}", i.data);
-        // println!("len: {}", i.len);
-        // println!("should be false: {}", i.get(1));
-        // i.set(1, false);
-        // i.toggle(1);
-        // println!("data: {}", i.data);
-        // println!("len: {}", i.len);
-        // println!("should be false: {}", i.get(1));
-        // i.toggle(0);
-        // println!("data: {}", i.data);
-        // println!("len: {}", i.len);
-        // let mut i = Indicator::parse("...");
-        // i.toggle(1);
-        // println!("{}", i.data);
-        // println!("{}", i.len);
-        // println!("{}", i.is_lit());
-        true
     }
 }
 
 #[allow(dead_code)]
 struct Machine{
-    start_indicator: Indicator,
-    buttons: Vec<Vec<u8>>,
-    power: Vec<u8>,
+    goal_indicator: Indicator,
+    buttons: Vec<Vec<usize>>,
+    power: Vec<usize>,
     seen: HashSet<Indicator>,
 }
 
 impl Machine {
-    fn new(indicator: Indicator, buttons: Vec<Vec<u8>>, power: Vec<u8>) -> Self{
+    fn new(goal_indicator: Indicator, buttons: Vec<Vec<usize>>, power: Vec<usize>) -> Self{
         Self{
-            start_indicator: indicator,
+            goal_indicator,
             buttons,
             power,
             seen: HashSet::new(),
@@ -114,11 +72,8 @@ impl Machine {
         let mut strings: Vec<&str> = txt.split(' ').collect();
         let i_string = strings.remove(0);
         let p_string = strings.pop().unwrap();
-        let mut indicator = Indicator::new();
+        let indicator = Indicator::parse(&i_string[1..(i_string.len()-1)]);
         let mut buttons = Vec::new();
-        for idx in 0..(i_string.len()-1) {
-            indicator.push(i_string.chars().nth(idx+1).unwrap() == '#');
-        }
         for s in strings {
             let s = &s[1..(s.len()-1)];
             let button = s.split(',').map(|num|num.parse().unwrap()).collect();
@@ -127,38 +82,34 @@ impl Machine {
         let power = p_string[1..(p_string.len()-1)].split(',').map(|num|num.parse().unwrap()).collect();
         Self::new(indicator, buttons, power)
     }
-    fn press(&self, mut indicator: Indicator, button: &Vec<u8>) -> Indicator{
+    fn press(&self, mut indicator: Indicator, button: &Vec<usize>) -> Indicator{
         for idx in button {
-            // indicator[*idx as usize] = !indicator[*idx as usize];
             indicator.toggle(*idx as usize);
         }
         indicator
     }
     fn get_min_presses(&mut self) -> usize{
-        // implement dfs. try pushing each button and repeat. gonna need to memoize this bitch.
-        let mut open: Vec<Indicator> = vec![self.start_indicator];
+        // implement dfs
+        let start_indicator = Indicator::new(self.goal_indicator.len);
+        let mut open: Vec<Indicator> = vec![start_indicator];
+        self.seen.insert(start_indicator);
         let mut presses = 0;
         loop {
             let mut next = Vec::new();
             for indicator in &open {
-                if indicator.is_lit() {return presses;}
+                let indicator = *indicator;
+                if indicator == self.goal_indicator {return presses;}
                 for b in &self.buttons {
-                    // println!("fuck {}", indicator.data);
-                    let temp = self.press(*indicator, b);
-                    // println!("you {}", temp.data);
+                    let temp = self.press(indicator, b);
                     if self.seen.contains(&temp) {continue;}
                     self.seen.insert(temp);
                     next.push(temp);
                 }
             }
-            println!("len: {}", next.len());
             debug_assert!(next.len() > 0);
             presses += 1;
             open = next;
-            break 0;
         }
-    // println!("{:?}", open);
-    // 0
     }
 }
 
@@ -169,13 +120,13 @@ fn parse(txt: &str) -> Vec<Machine>{
 #[allow(dead_code)]
 pub fn solve(txt: &str) -> String{
     let data = parse(txt);
-    debug_assert!(Indicator::test());
+    // debug_assert!(Indicator::test());
+    // let res = data[0].get_min_presses();
     let mut res = 0;
     for mut m in data {
         let count = m.get_min_presses();
-        println!("{count}");
+        // println!("{count}");
         res += count;
-        break;
     }
     format!("{}",res)
 }
